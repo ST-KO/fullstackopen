@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import './App.css';
 
 const Hello = (props) => {
   console.log(props);
