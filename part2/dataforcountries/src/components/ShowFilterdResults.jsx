@@ -18,7 +18,7 @@ const ShowFilterdResults = ({filteredCountries, setCountry}) => {
       } else {
         return (
             filteredCountries.map(country => 
-                <li>
+                <li key={country.name.common}>
                     {country.name.common}
                     <button onClick={() => handleButtonClick(country.name.common)}>show</button>
                 </li>
