@@ -3,6 +3,9 @@ import Filter from './components/Filter';
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons';
 import personService from './services/persons';
+import Notification from './components/Notification';
+
+import './index.css';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -10,6 +13,8 @@ const App = () => {
   const [newName, setNewName] = useState('');
   const [newPhoneNumber, setNewPhoneNumber] = useState('');
   const [filter, setFilter] = useState('');
+  const [notificationMessage, setnotificationMessage] = useState(null);
+  const [error, setError] = useState(false);
 
   const getAllPersons = () => {
     personService
@@ -39,6 +44,11 @@ const App = () => {
           setPersons(persons.concat(response));
           setNewName('');
           setNewPhoneNumber('');
+
+          setnotificationMessage(`Added ${newName}`);
+          setTimeout(() => {
+            setnotificationMessage(null);
+          }, 3000);
         })
      
     } else if(name && !number) {
@@ -49,6 +59,19 @@ const App = () => {
             setPersons(persons.map(person => person.id === name.id ? response : person));
             setNewName('');
             setNewPhoneNumber('');
+
+            setnotificationMessage(`Number is changed`);
+            setTimeout(() => {
+              setnotificationMessage(null);
+            }, 3000);
+          })
+          .catch(error => {
+            setError(true);
+            setnotificationMessage(`Information of ${newName} has already been removed from server`);
+            setTimeout(() => {
+              setError(false);
+              setnotificationMessage(null);
+            }, 3000);
           })
       }
     }
@@ -61,7 +84,12 @@ const App = () => {
     if(window.confirm(`Delete ${name}`)){
       personService
         .deletePerson(id)
-        setPersons(persons.filter(person => person.id !== id))
+        setPersons(persons.filter(person => person.id !== id));
+
+        setnotificationMessage(`Deleted ${newName} Successfully`);
+        setTimeout(() => {
+          setnotificationMessage(null);
+        }, 3000);
     }
   }
 
@@ -84,7 +112,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      
+      <Notification message={notificationMessage} error={error} />
       <Filter filter={filter} handleFilter={handleFilter} />
       
       <h3>Add a new</h3>
