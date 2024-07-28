@@ -1,7 +1,7 @@
 const express = require("express");
-const app = express();
+const morgan = require("morgan");
 
-app.use(express.json());
+const app = express();
 
 let data = [
   {
@@ -25,6 +25,20 @@ let data = [
     number: "39-23-6423122",
   },
 ];
+
+// app.use(morgan("tiny"));
+
+app.use(express.json());
+
+// Custom token to log the req body
+morgan.token("body", (req) => JSON.stringify(req.body));
+
+// Custom format string
+const customFormat =
+  ":method :url :status :res[content-length] - :response-time ms :body";
+
+// Use morgan middlware with the cutom format
+app.use(morgan(customFormat));
 
 app.get("/", (req, res) => {
   res.send("<h1>Hello</h1>");
