@@ -53,32 +53,42 @@ app.get("/", (req, res) => {
   res.send("<h1>Hello</h1>");
 });
 
-app.get("/api/persons", (req, res) => {
-  People.find({}).then((result) => {
-    res.json(result);
-  });
+app.get("/api/persons", (req, res, next) => {
+  People.find({})
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((error) => next(error));
 });
 
-app.get("/api/info", (req, res) => {
+app.get("/api/info", (req, res, next) => {
   const date = new Date();
-  res.send(`<p>Phonebook has info for ${data.length} people.<br/><br/>${date}`);
+  People.countDocuments({})
+    .then((count) => {
+      res.send(`<p>Phonebook has info for ${count} people.<br/><br/>${date}`);
+    })
+    .catch((error) => next(error));
 });
 
-app.get("/api/persons/:id", (req, res) => {
+app.get("/api/persons/:id", (req, res, next) => {
   const { id } = req.params;
-  People.findById(id).then((result) => {
-    res.json(result);
-  });
+  People.findById(id)
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((error) => next(error));
 });
 
-app.delete("/api/persons/:id", (req, res) => {
+app.delete("/api/persons/:id", (req, res, next) => {
   const { id } = req.params;
-  People.findByIdAndDelete(id).then((result) => {
-    res.status(204).end();
-  });
+  People.findByIdAndDelete(id)
+    .then((result) => {
+      res.status(204).end();
+    })
+    .catch((error) => next(error));
 });
 
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", (req, res, next) => {
   const body = req.body;
 
   // Check for missing name or number
@@ -88,28 +98,47 @@ app.post("/api/persons", (req, res) => {
     });
   }
 
-  // Check for duplicate names
-  // const nameExists = data.some((data) => data.name === body.name);
-
-  // if (nameExists) {
-  //   return res.status(400).json({
-  //     error: "name must be unique",
-  //   });
-  // }
-
-  // const newId = Math.floor(Math.random() * 10000000);
-
   const newPerson = new People({
     name: body.name,
     number: body.number,
   });
 
-  newPerson.save().then((result) => {
-    res.json(newPerson);
-  });
+  newPerson
+    .save()
+    .then((result) => {
+      res.json(newPerson);
+    })
+    .catch((error) => next(error));
+});
+
+app.put("/api/persons/:id", (req, res, next) => {
+  const { name, number } = req.body;
+
+  const person = {
+    name,
+    number,
+  };
+
+  People.findByIdAndUpdate(req.params.id, person, { new: true })
+    .then((updatedPerson) => {
+      res.json(updatedPerson);
+    })
+    .catch((error) => next(error));
 });
 
 app.use(unkownEndpoint);
+
+const errorHandler = (error, req, res, next) => {
+  console.error(error.message);
+
+  if (error.name === "CastError") {
+    return res.status(400).send({ error: "malformatted id" });
+  }
+
+  next(error);
+};
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 app.listen(PORT);

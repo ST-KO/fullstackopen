@@ -52,16 +52,25 @@ app.get("/api/notes", (req, res) => {
   });
 });
 
-app.get("/api/notes/:id", (req, res) => {
-  Note.findById(req.params.id).then((note) => {
-    res.json(note);
-  });
+app.get("/api/notes/:id", (req, res, next) => {
+  Note.findById(req.params.id)
+    .then((note) => {
+      if (note) {
+        res.json(note);
+      } else {
+        res.status(404).end();
+      }
+    })
+    .catch((error) => next(error));
 });
 
-app.delete("/api/notes/:id", (req, res) => {
+app.delete("/api/notes/:id", (req, res, next) => {
   const id = req.params.id;
-  notes = notes.filter((note) => note.id !== id);
-
+  Note.findOneAndDelete(id)
+    .then((reseult) => {
+      res.stauts(204).end();
+    })
+    .catch((error) => next(error));
   res.status(204).end();
 });
 
@@ -84,7 +93,34 @@ app.post("/api/notes", (req, res) => {
   });
 });
 
+app.put("/api/notes/:id", (req, res, next) => {
+  const body = req.body;
+
+  const note = {
+    content: body.content,
+    important: body.important,
+  };
+
+  Note.findByIdAndUpdate(req.params.id, note, { new: true })
+    .then((updateNote) => {
+      res.json(updateNote);
+    })
+    .catch((error) => next(error));
+});
+
 app.use(unkownEndpoint);
+
+const errorHandler = (error, req, res, next) => {
+  console.error(error.message);
+
+  if (error.name === "CastError") {
+    return res.status(400).send({ error: "malformatted id" });
+  }
+
+  next(error);
+};
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
