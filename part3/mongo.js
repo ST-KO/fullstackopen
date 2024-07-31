@@ -9,8 +9,6 @@ const password = process.argv[2];
 
 const url = `mongodb+srv://scytherock74:${password}@cluster0.gfwaidq.mongodb.net/phonebook?retryWrites=true&w=majority&appName=Cluster0`;
 
-// bcFcLd5lrlVIq4kZ
-
 mongoose.set("strictQuery", false);
 
 mongoose.connect(url);

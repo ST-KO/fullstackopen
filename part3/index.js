@@ -1,6 +1,9 @@
+require("dotenv").config();
+
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
+const People = require("./models/person.js");
 
 const app = express();
 
@@ -51,7 +54,9 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/persons", (req, res) => {
-  res.json(data);
+  People.find({}).then((result) => {
+    res.json(result);
+  });
 });
 
 app.get("/api/info", (req, res) => {
@@ -61,20 +66,16 @@ app.get("/api/info", (req, res) => {
 
 app.get("/api/persons/:id", (req, res) => {
   const { id } = req.params;
-  const person = data.find((data) => data.id === id);
-
-  if (person) {
-    res.json(person);
-  } else {
-    res.status(404).end();
-  }
+  People.findById(id).then((result) => {
+    res.json(result);
+  });
 });
 
 app.delete("/api/persons/:id", (req, res) => {
   const { id } = req.params;
-  data = data.filter((data) => data.id !== id);
-
-  res.status(204).end();
+  People.findByIdAndDelete(id).then((result) => {
+    res.status(204).end();
+  });
 });
 
 app.post("/api/persons", (req, res) => {
@@ -88,29 +89,28 @@ app.post("/api/persons", (req, res) => {
   }
 
   // Check for duplicate names
-  const nameExists = data.some((data) => data.name === body.name);
+  // const nameExists = data.some((data) => data.name === body.name);
 
-  if (nameExists) {
-    return res.status(400).json({
-      error: "name must be unique",
-    });
-  }
+  // if (nameExists) {
+  //   return res.status(400).json({
+  //     error: "name must be unique",
+  //   });
+  // }
 
-  const newId = Math.floor(Math.random() * 10000000);
+  // const newId = Math.floor(Math.random() * 10000000);
 
-  const newPerson = {
-    id: newId,
+  const newPerson = new People({
     name: body.name,
     number: body.number,
-  };
+  });
 
-  data = data.concat(newPerson);
-
-  res.json(newPerson);
+  newPerson.save().then((result) => {
+    res.json(newPerson);
+  });
 });
 
 app.use(unkownEndpoint);
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 app.listen(PORT);
 console.log(`Server is running on port: ${PORT}`);

@@ -1,24 +1,10 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
+const Note = require("./models/note.js");
 
 const app = express();
-
-const requestLogger = (req, res, next) => {
-  console.log("Method:", req.method);
-  console.log("Path: ", req.path);
-  console.log("Body: ", req.body);
-  console.log("---");
-  next();
-};
-
-app.use(cors());
-app.use(express.json());
-app.use(requestLogger);
-app.use(express.static("dist"));
-
-const unkownEndpoint = (req, res, next) => {
-  res.status(404).send({ error: "unkown endpoint" });
-};
 
 let notes = [
   {
@@ -38,23 +24,38 @@ let notes = [
   },
 ];
 
+app.use(express.static("dist"));
+
+const requestLogger = (req, res, next) => {
+  console.log("Method:", req.method);
+  console.log("Path: ", req.path);
+  console.log("Body: ", req.body);
+  console.log("---");
+  next();
+};
+
+app.use(cors());
+app.use(express.json());
+app.use(requestLogger);
+
+const unkownEndpoint = (req, res, next) => {
+  res.status(404).send({ error: "unkown endpoint" });
+};
+
 app.get("/", (req, res) => {
   res.send("<h1>Hello World</h1>");
 });
 
 app.get("/api/notes", (req, res) => {
-  res.json(notes);
+  Note.find({}).then((notes) => {
+    res.json(notes);
+  });
 });
 
 app.get("/api/notes/:id", (req, res) => {
-  const id = req.params.id;
-  const note = notes.find((note) => note.id === id);
-
-  if (note) {
+  Note.findById(req.params.id).then((note) => {
     res.json(note);
-  } else {
-    res.status(404).end();
-  }
+  });
 });
 
 app.delete("/api/notes/:id", (req, res) => {
@@ -64,35 +65,28 @@ app.delete("/api/notes/:id", (req, res) => {
   res.status(204).end();
 });
 
-const generateId = () => {
-  const maxId =
-    notes.length > 0 ? Math.max(...notes.map((n) => Number(n.id))) : 0;
-
-  return maxId;
-};
-
 app.post("/api/notes", (req, res) => {
   const body = req.body;
 
-  if (!body.content) {
+  if (body.content === undefined) {
     return res.status(400).json({
       error: "content missing",
     });
   }
 
-  const note = {
+  const note = new Note({
     content: body.content,
-    important: Boolean(body.important) || false,
-    id: generateId(),
-  };
+    important: body.important || false,
+  });
 
-  notes = notes.concat(note);
-
-  res.json(note);
+  note.save().then((savedNote) => {
+    res.json(note);
+  });
 });
 
 app.use(unkownEndpoint);
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT);
-console.log(`Server is running on port ${PORT}`);
+const PORT = process.env.PORT;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
