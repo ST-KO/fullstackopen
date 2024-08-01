@@ -10,7 +10,8 @@
     "build:ui": "rm -rf dist && cd ../lessons/ && npm run build && cp -r dist ../notes-backend",
     "deploy": "fly deploy",
     "deploy:full": "npm run build:ui && npm run deploy",
-    "logs:prod": "fly logs"
+    "logs:prod": "fly logs",
+    "lint": "eslint ."
   },
   "author": "",
   "license": "ISC",
@@ -21,7 +22,11 @@
     "mongoose": "^8.5.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.8.0",
     "@flydotio/dockerfile": "^0.5.8",
+    "@stylistic/eslint-plugin-js": "^2.6.0",
+    "eslint": "^9.8.0",
+    "globals": "^15.8.0",
     "nodemon": "^3.1.4"
   }
 }

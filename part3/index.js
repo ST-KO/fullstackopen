@@ -7,35 +7,12 @@ const People = require("./models/person.js");
 
 const app = express();
 
-let data = [
-  {
-    id: "1",
-    name: "Arto Hella",
-    number: "040-123456",
-  },
-  {
-    id: "2",
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: "3",
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: "4",
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
-];
-
 // app.use(morgan("tiny"));
 app.use(cors());
 app.use(express.json());
 app.use(express.static("dist"));
 
-const unkownEndpoint = (req, res, next) => {
+const unkownEndpoint = (req, res) => {
   res.status(404).send({ error: "unkown endpoint" });
 };
 
