@@ -9,7 +9,12 @@ const getAll = () => {
 
 const createPerson = (newObject) => {
   const request = axios.post(baseUrl, newObject);
-  return request.then((response) => response.data);
+  return request
+    .then((response) => response.data)
+    .catch((error) => {
+      console.log(error);
+      throw error;
+    });
 };
 
 const updatePerson = (id, newObject) => {
@@ -19,6 +24,7 @@ const updatePerson = (id, newObject) => {
 
 const deletePerson = (id) => {
   axios.delete(`${baseUrl}/${id}`);
+  return request.then((response) => response.data);
 };
 
 export default {

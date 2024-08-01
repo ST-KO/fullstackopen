@@ -50,6 +50,13 @@ const App = () => {
             setnotificationMessage(null);
           }, 3000);
         })
+        .catch(error => {
+          setError(true);
+          setnotificationMessage(error.response.data.error);
+          setTimeout(() => {
+            setnotificationMessage(null);
+          }, 3000);
+        })
      
     } else if(name && !number) {
       if(window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)){
