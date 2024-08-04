@@ -56,6 +56,35 @@ test("successfully creates a new blog post", async () => {
   assert(title.includes("React is easy"));
 });
 
+test("likes property is missing from the request", async () => {
+  const newBlog = {
+    title: "Tailwind is easy",
+    author: "Si",
+    url: "abc",
+  };
+
+  const response = await api
+    .post("/api/blogs")
+    .send(newBlog)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+
+  assert(!response.body.hasOwnProperty("likes"));
+});
+
+test("blog without content is added", async () => {
+  const newBlog = {
+    title: "Tailwind is easy",
+    author: "Si",
+  };
+
+  await api.post("/api/blogs").send(newBlog).expect(400);
+
+  const blogAtEnd = await helper.blogsInDb();
+
+  assert.strictEqual(blogAtEnd.length, helper.initialBlogs.length);
+});
+
 after(async () => {
   await mongoose.connection.close();
 });
