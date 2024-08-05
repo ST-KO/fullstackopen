@@ -1,4 +1,4 @@
-const { test, after, beforeEach } = require("node:test");
+const { test, after, beforeEach, describe } = require("node:test");
 const assert = require("node:assert");
 const supertest = require("supertest");
 const mongoose = require("mongoose");
@@ -83,6 +83,42 @@ test("blog without content is added", async () => {
   const blogAtEnd = await helper.blogsInDb();
 
   assert.strictEqual(blogAtEnd.length, helper.initialBlogs.length);
+});
+
+describe("deletion of a blog", () => {
+  test("succeds with status code 204 if id id valid", async () => {
+    const blogAtStart = await helper.blogsInDb();
+    const blogToDelete = blogAtStart[0];
+
+    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+
+    const blogAtEnd = await helper.blogsInDb();
+    assert.strictEqual(blogAtEnd.length, helper.initialBlogs.length - 1);
+
+    const title = blogAtEnd.map((b) => b.title);
+    assert(!title.includes(blogToDelete.title));
+  });
+});
+
+describe("updating a blog", () => {
+  test("succeds with status code 200 if update passes", async () => {
+    const blogAtStart = await helper.blogsInDb();
+
+    const blogToUpdate = blogAtStart[0];
+
+    const newBlog = {
+      title: "React",
+      author: "Michael Chan",
+      url: "https://reactpatterns.com/",
+      likes: 7,
+    };
+
+    await api.put(`/api/blogs/${blogToUpdate.id}`).expect(200);
+
+    const blogAtEnd = await helper.blogsInDb();
+    const title = blogAtEnd.map((b) => b.title);
+    assert(!title.includes(newBlog.title));
+  });
 });
 
 after(async () => {
