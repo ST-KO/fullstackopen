@@ -3,6 +3,7 @@ const express = require("express");
 require("express-async-errors");
 const cors = require("cors");
 const notesRouter = require("./controllers/notes.js");
+const usersRouter = require("./controllers/users.js");
 const middlware = require("./utils/middleware.js");
 const logger = require("./utils/logger.js");
 const mongoose = require("mongoose");
@@ -28,6 +29,7 @@ app.use(express.json());
 app.use(middlware.requestLogger);
 
 app.use("/api/notes", notesRouter);
+app.use("/api/users", usersRouter);
 
 app.use(middlware.unkownEndpoint);
 app.use(middlware.errorHandler);

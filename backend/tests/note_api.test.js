@@ -5,6 +5,8 @@ const supertest = require("supertest");
 const helper = require("./test_helper.js");
 const app = require("../app.js");
 const Note = require("../models/note.js");
+const bcrypt = require("bcrypt");
+const User = require("../models/user.js");
 
 const api = supertest(app);
 
@@ -106,6 +108,60 @@ describe("deletion of a note", () => {
     assert(!contents.includes(noteToDelet.content));
 
     assert.strictEqual(noteAtEnd.length, helper.initialNotes.length - 1);
+  });
+});
+
+describe("where there is initially one user in db", () => {
+  beforeEach(async () => {
+    await User.deleteMany({});
+
+    const passwordHash = await bcrypt.hash("sekret", 10);
+    const user = new User({ username: "root", passwordHash });
+
+    await user.save();
+  });
+
+  test("creation succeds with a fresh username", async () => {
+    const userAtStart = await helper.usersInDB();
+
+    const newUser = {
+      username: "mluukkai",
+      name: "Matti Luukkainen",
+      password: "salainen",
+    };
+
+    await api
+      .post("/api/users")
+      .send(newUser)
+      .expect(201)
+      .expect("Content-Type", /application\/json/);
+
+    const usersAtEnd = await helper.usersInDB();
+    assert.strictEqual(usersAtEnd.length, userAtStart.length + 1);
+
+    const usernames = usersAtEnd.map((u) => u.username);
+    assert(usernames.includes(newUser.username));
+  });
+
+  test("creation fails with proper statuscode and message if username already taken", async () => {
+    const usersAtStart = await helper.usersInDB();
+
+    const newUser = {
+      username: "mluukkai",
+      name: "Matti Luukkainen",
+      password: "salainen",
+    };
+
+    const result = await api
+      .post("/api/users")
+      .send(newUser)
+      .expect(400)
+      .expect("Content-Type", /application\/json/);
+
+    const usersAtEnd = await helper.usersInDB();
+    assert(result.body.error.includes("expected `username` to be unique"));
+
+    assert.strictEqual(usersAtEnd.length, usersAtStart.length);
   });
 });
 
