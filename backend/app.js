@@ -7,6 +7,7 @@ const usersRouter = require("./controllers/users.js");
 const middlware = require("./utils/middleware.js");
 const logger = require("./utils/logger.js");
 const mongoose = require("mongoose");
+const loginRouter = require("./controllers/login.js");
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use(middlware.requestLogger);
 
 app.use("/api/notes", notesRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/login", loginRouter);
 
 app.use(middlware.unkownEndpoint);
 app.use(middlware.errorHandler);
