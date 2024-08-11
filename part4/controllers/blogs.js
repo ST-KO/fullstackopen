@@ -44,12 +44,17 @@ blogsRouter.post("/", async (req, res) => {
 });
 
 blogsRouter.delete("/:id", async (req, res) => {
-  const token = req.token;
+  // const token = req.token;
+  const user = req.user;
 
-  const decodedToken = jwt.verify(token, process.env.SECRET);
-  if (!decodedToken.id) {
-    return res.status(401).json({ error: "token invalid" });
+  if (!user) {
+    return res.status(401).json({ error: "user not authenticated" });
   }
+
+  // const decodedToken = jwt.verify(token, process.env.SECRET);
+  // if (!decodedToken.id) {
+  //   return res.status(401).json({ error: "token invalid" });
+  // }
 
   const blog = await Blog.findById(req.params.id);
 
@@ -58,7 +63,7 @@ blogsRouter.delete("/:id", async (req, res) => {
   }
 
   // Check if the user who is trying to delete the blog is the same as the one who created it
-  if (blog.user.toString() !== decodedToken.id.toString()) {
+  if (blog.user.toString() !== user.id.toString()) {
     return res
       .status(403)
       .json({ error: "user not authorised to delete the post" });
