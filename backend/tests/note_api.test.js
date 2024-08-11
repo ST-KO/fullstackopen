@@ -158,9 +158,11 @@ describe("where there is initially one user in db", () => {
       .expect(400)
       .expect("Content-Type", /application\/json/);
 
-    const usersAtEnd = await helper.usersInDB();
+    console.log(result.body);
+
     assert(result.body.error.includes("expected `username` to be unique"));
 
+    const usersAtEnd = await helper.usersInDB();
     assert.strictEqual(usersAtEnd.length, usersAtStart.length);
   });
 });
