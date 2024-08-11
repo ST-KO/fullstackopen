@@ -3,14 +3,6 @@ const Blog = require("../model/blog.js");
 const User = require("../model/user.js");
 const jwt = require("jsonwebtoken");
 
-// const getTokenFrom = (request) => {
-//   const authorization = request.get("authorization");
-//   if (authorization && authorization.startsWith("Bearer ")) {
-//     return authorization.replace("Bearer ", "");
-//   }
-//   return null;
-// };
-
 blogsRouter.get("/", async (req, res) => {
   const blogs = await Blog.find({}).populate("user", { username: 1, name: 1 });
   res.json(blogs);
@@ -52,6 +44,27 @@ blogsRouter.post("/", async (req, res) => {
 });
 
 blogsRouter.delete("/:id", async (req, res) => {
+  const token = req.token;
+
+  const decodedToken = jwt.verify(token, process.env.SECRET);
+  if (!decodedToken.id) {
+    return res.status(401).json({ error: "token invalid" });
+  }
+
+  const blog = await Blog.findById(req.params.id);
+
+  if (!blog) {
+    return res.stauts(401).json({ error: "blog not found" });
+  }
+
+  // Check if the user who is trying to delete the blog is the same as the one who created it
+  if (blog.user.toString() !== decodedToken.id.toString()) {
+    return res
+      .status(403)
+      .json({ error: "user not authorised to delete the post" });
+  }
+
+  // If all went well, proceed with deletion
   await Blog.findByIdAndDelete(req.params.id);
   res.status(204).end();
 });
