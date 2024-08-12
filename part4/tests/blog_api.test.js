@@ -7,8 +7,21 @@ const Blog = require("../model/blog.js");
 const User = require("../model/user");
 const helper = require("./test_helper");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const api = supertest(app);
+
+let token;
+beforeEach(async () => {
+  await User.deleteMany({});
+
+  const passwordHash = await bcrypt.hash("sekret", 10);
+  const user = new User({ username: "root", passwordHash });
+
+  await user.save();
+
+  token = jwt.sign({ id: user._id }, process.env.SECRET);
+});
 
 beforeEach(async () => {
   await Blog.deleteMany({});
@@ -47,6 +60,7 @@ test("successfully creates a new blog post", async () => {
 
   await api
     .post("/api/blogs")
+    .set("Authorization", `Bearer ${token}`)
     .send(newBlog)
     .expect(201)
     .expect("Content-Type", /application\/json/);
@@ -58,6 +72,23 @@ test("successfully creates a new blog post", async () => {
   assert(title.includes("React is easy"));
 });
 
+test("fails with status code 401 if token is not provided", async () => {
+  const newBlog = {
+    title: "React is easy",
+    author: "Si",
+    url: "abc",
+  };
+
+  await api
+    .post("/api/blogs")
+    .send(newBlog)
+    .expect(401)
+    .expect("Content-Type", /application\/json/);
+
+  const blogAtEnd = await helper.blogsInDb();
+  assert.strictEqual(blogAtEnd.length, helper.initialBlogs.length);
+});
+
 test("likes property is missing from the request", async () => {
   const newBlog = {
     title: "Tailwind is easy",
@@ -67,6 +98,7 @@ test("likes property is missing from the request", async () => {
 
   const response = await api
     .post("/api/blogs")
+    .set("Authorization", `Bearer ${token}`)
     .send(newBlog)
     .expect(201)
     .expect("Content-Type", /application\/json/);
@@ -88,19 +120,91 @@ test("blog without content is added", async () => {
 });
 
 describe("deletion of a blog", () => {
-  test("succeds with status code 204 if id id valid", async () => {
-    const blogAtStart = await helper.blogsInDb();
-    const blogToDelete = blogAtStart[0];
+  test("succeds with status code 204 if id is valid", async () => {
+    const newBlog = {
+      title: "React is easy",
+      author: "Si",
+      url: "abc",
+    };
 
-    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+    await api
+      .post("/api/blogs")
+      .set("Authorization", `Bearer ${token}`)
+      .send(newBlog)
+      .expect(201)
+      .expect("Content-Type", /application\/json/);
+
+    const blogAtStart = await helper.blogsInDb();
+    const blogToDelete = blogAtStart[2];
+
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .expect(204);
 
     const blogAtEnd = await helper.blogsInDb();
-    assert.strictEqual(blogAtEnd.length, helper.initialBlogs.length - 1);
+    assert.strictEqual(blogAtEnd.length, helper.initialBlogs.length);
 
     const title = blogAtEnd.map((b) => b.title);
     assert(!title.includes(blogToDelete.title));
   });
 });
+//     let token;
+//     let user;
+//     let blogToDelete;
+
+//     beforeEach(async () => {
+//       await User.deleteMany({});
+//       await Blog.deleteMany({});
+
+//       const passwordHash = await bcrypt.hash("sekret", 10);
+//       user = new User({ username: "root", passwordHash });
+//       await user.save();
+
+//       token = jwt.sign({ id: user._id }, process.env.SECRET);
+
+//       const blog = new Blog({
+//         title: "React is easy",
+//         author: "Si",
+//         url: "abc",
+//         user: user._id
+//       });
+//       await blog.save();
+
+//       blogToDelete = blog;
+//     });
+
+//     test("succeeds with status code 204 if the blog is deleted by its creator", async () => {
+//       await api
+//         .delete(`/api/blogs/${blogToDelete.id}`)
+//         .set('Authorization', `Bearer ${token}`)
+//         .expect(204);
+
+//       const blogAtEnd = await helper.blogsInDb();
+//       assert.strictEqual(blogAtEnd.length, helper.initialBlogs.length);
+
+//       const title = blogAtEnd.map((b) => b.title);
+//       assert(!title.includes(blogToDelete.title));
+//     });
+
+//     test("fails with status code 401 if a user is not authenticated", async () => {
+//       await api
+//         .delete(`/api/blogs/${blogToDelete.id}`)
+//         .expect(401);
+//     });
+
+//     test("fails with status code 401 if the user is not the creator of the blog", async () => {
+//       const anotherUser = new User({ username: "anotherUser", passwordHash: await bcrypt.hash("password", 10) });
+//       await anotherUser.save();
+
+//       const anotherToken = jwt.sign({ id: anotherUser._id }, process.env.SECRET);
+
+//       await api
+//         .delete(`/api/blogs/${blogToDelete.id}`)
+//         .set('Authorization', `Bearer ${anotherToken}`)
+//         .expect(401);
+//     });
+//   });
 
 describe("updating a blog", () => {
   test("succeds with status code 200 if update passes", async () => {
@@ -124,15 +228,6 @@ describe("updating a blog", () => {
 });
 
 describe("where there is initially one user", async () => {
-  beforeEach(async () => {
-    await User.deleteMany({});
-
-    const passwordHash = await bcrypt.hash("sekret", 10);
-    const user = new User({ username: "root", passwordHash });
-
-    await user.save();
-  });
-
   const usersAtStart = await helper.usersInDb();
 
   test("creation succeeds with a fresh username", async () => {
