@@ -23,8 +23,8 @@ const create = async (newObject) => {
     headers: { Authorization: token },
   };
 
-  const response = axios.post(baseUrl, newObject, config);
-  return response.then((response) => response.data);
+  const response = await axios.post(baseUrl, newObject, config);
+  return response.data;
 };
 
 const update = (id, newObject) => {
