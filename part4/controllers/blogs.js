@@ -32,7 +32,7 @@ blogsRouter.post("/", async (req, res) => {
     title: body.title,
     author: body.author,
     url: body.url,
-    likes: body.likes,
+    likes: body.likes || 0,
     user: user.id,
   });
 
@@ -76,6 +76,12 @@ blogsRouter.delete("/:id", async (req, res) => {
 
 blogsRouter.put("/:id", async (req, res) => {
   const body = req.body;
+  const token = req.token;
+
+  const decodedToken = jwt.verify(token, process.env.SECRET);
+  if (!decodedToken.id) {
+    return res.status(401).json({ error: "token invalid" });
+  }
 
   const blog = {
     title: body.title,
