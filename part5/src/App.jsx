@@ -10,16 +10,8 @@ import Togglable from './components/Togglable'
 import BlogForm from './components/BlogForm'
 
 const App = () => {
-  const [newBlog, setNewBlog] = useState({
-    title: '',
-    author: '',
-    url: ''
-  });
-  const [blogs, setBlogs] = useState([]);
 
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-  const [url, setUrl] = useState('');
+  const [blogs, setBlogs] = useState([]);
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');

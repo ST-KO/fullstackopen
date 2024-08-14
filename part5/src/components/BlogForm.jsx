@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
+import PorpTypes from 'prop-types';
 
 const BlogForm = ({ createBlog }) => {
     const [newBlog, setNewBlog] = useState({
@@ -71,5 +72,9 @@ const BlogForm = ({ createBlog }) => {
         </div>
     );
 };
+
+BlogForm.propTypes = {
+    createBlog: PorpTypes.func.isRequired
+}
 
 export default BlogForm;

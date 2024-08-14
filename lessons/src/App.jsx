@@ -1,28 +1,28 @@
-import { useEffect, useState, useRef } from "react"
-import Note from "./components/Note"
-import noteService from './services/notes'
-import loginService from './services/login'
-import LoginForm from './components/LoginForm'
+import { useEffect, useState, useRef } from "react";
+import Note from "./components/Note";
+import noteService from './services/notes';
+import loginService from './services/login';
+import LoginForm from './components/LoginForm';
 import Notification from "./components/Notification";
-import Togglable from "./components/Togglable"
+import Togglable from "./components/Togglable";
 
 import './index.css';
-import NoteForm from "./components/NoteForm"
+import NoteForm from "./components/NoteForm";
 
 const Footer = () => {
   const footerStyle = {
     color: 'green',
     fontStyle: 'italic',
     fontSize: 16
-  }
+  };
 
   return (
     <div style={footerStyle}>
       <br />
       <em>Note app, Department of Computer Science, University of Helsinki 2024</em>
     </div>
-  )
-}
+  );
+};
 
 const App = () => {
   const [loginVisible, setLoginVisible] = useState(false);
@@ -41,7 +41,7 @@ const App = () => {
     .getAll()
     .then(initialNotes => {
       setNotes(initialNotes);
-    })
+    });
   }, []);
 
   useEffect(() => {
@@ -55,7 +55,7 @@ const App = () => {
 
   const toggleImportance = (id) => {
     const note = notes.find(n => n.id === id);
-    const changedNote = {...note, important: !note.important};
+    const changedNote = { ...note, important: !note.important };
 
     noteService
       .update(id, changedNote)
@@ -65,13 +65,13 @@ const App = () => {
     .catch(error => {
       setErrorMessage(
         `Note '${note.content}' was already removed from server`
-      )
+      );
       setTimeout(() => {
         setErrorMessage(null);
       }, 5000);
       setNotes(notes.filter(n => n.id !== id));
-    })
-  }
+    });
+  };
   
   const addNote = (noteObject) => {
     noteFormRef.current.toggleImportance();
@@ -79,8 +79,8 @@ const App = () => {
       .create(noteObject)
       .then(returnedNote => {
         setNotes(notes.concat(returnedNote));
-      })
-  }
+      });
+  };
 
   const notesToShow = showAll ? notes : notes.filter(note => note.important);
 
@@ -105,26 +105,27 @@ const App = () => {
         setErrorMessage(null);
       }, 5000);
     }
-  }
+  };
 
   const loginForm = () => {
     return (
       <Togglable buttonLabel='login'>
          <LoginForm 
+            handleLogin={handleLogin}
             username={username}
             password={password}
             handleUsernameChange={({ target }) => setUsername(target.value)}
             handlePasswordChange={({ target }) => setPassword(target.value)}
           />
       </Togglable>
-    )
+    );
   };
   
   const noteForm = () => (
     <Togglable buttonLabel="new note" ref={noteFormRef} >
       <NoteForm createNote={addNote} />
     </Togglable>
-  )
+  );
 
   return (
     <div>
@@ -157,7 +158,7 @@ const App = () => {
 
       <Footer />
     </div>
-  )
-}
+  );
+};
 
 export default App
