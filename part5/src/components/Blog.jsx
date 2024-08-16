@@ -39,10 +39,10 @@ const Blog = ({ blog, updateLikes, deleteBlog }) => {
       {
         viewDetails &&
         <>
-          <div>
+          <div className='blog-url'>
             {blog?.url}
           </div>
-          <div>
+          <div className='blog-likes'>
             likes {blog.likes !== undefined ? blog.likes : 0}{" "}
             <button onClick={addLikes}>likes</button>
           </div>
