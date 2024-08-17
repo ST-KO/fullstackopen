@@ -55,5 +55,5 @@ describe('<Blog />', () => {
         await user.click(likesButton);
 
         expect(mockHandler.mock.calls).toHaveLength(2);
-    })
+    });
 });
