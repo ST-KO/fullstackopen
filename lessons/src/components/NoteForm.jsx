@@ -8,7 +8,7 @@ const NoteForm = ({ createNote }) => {
         e.preventDefault();
         createNote({
             content: newNote,
-            import: true
+            important: true
         });
 
         setNewNote('');

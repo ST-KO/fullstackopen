@@ -74,7 +74,7 @@ const App = () => {
   };
   
   const addNote = (noteObject) => {
-    noteFormRef.current.toggleImportance();
+    // noteFormRef.current.toggleImportance();
     noteService
       .create(noteObject)
       .then(returnedNote => {

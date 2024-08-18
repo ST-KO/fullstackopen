@@ -1,0 +1,17 @@
+{
+  "name": "endtoend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "cypress:open": "cypress open",
+    "teste:e2e": "cypress run"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "cypress": "^13.13.3",
+    "eslint-plugin-cypress": "^3.5.0"
+  }
+}
