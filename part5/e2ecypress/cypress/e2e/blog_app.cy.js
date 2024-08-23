@@ -102,7 +102,7 @@ describe("Blog app", () => {
         cy.contains("another blog created by cypress").should("not.exist");
       });
 
-      it("unauthorised user cannot delete the blog", function () {
+      it("unauthorised user cannot see delete button", function () {
         cy.contains("logout").click();
 
         cy.contains("login").click();
@@ -116,6 +116,22 @@ describe("Blog app", () => {
           .click();
 
         cy.get(".delete-button").should("not.exist");
+      });
+
+      it("blogs are ordered by likes", function () {
+        cy.contains("new blog").click();
+        cy.get("#title").type("blog with the most likes");
+        cy.get("#author").type("cypress");
+        cy.get("#url").type("http://cypress.com");
+        cy.get("#create-button").click();
+
+        cy.get(".blogs").eq(1).contains("view").click();
+        cy.get(".like-button").click();
+
+        cy.get(".blogs").eq(0).should("contain", "blog with the most likes");
+        cy.get(".blogs")
+          .eq(1)
+          .should("contain", "another blog created by cypress");
       });
     });
   });
