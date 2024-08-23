@@ -72,13 +72,27 @@ describe("Blog app", () => {
 
       it("users can like a blog", function () {
         cy.get(".blogs")
-          .should("contain", "another blog created by cypress cypress")
+          .should("contain", "another blog created by cypress")
           .contains("view")
           .click();
 
         cy.get(".like-button").click();
 
         cy.get(".blog-likes").should("contain", "1");
+      });
+
+      it("users can delete their blogs", function () {
+        cy.get(".blogs")
+          .should("contain", "another blog created by cypress")
+          .contains("view")
+          .click();
+
+        cy.get(".delete-button").click();
+        cy.on("window:confirm", function () {
+          return true;
+        });
+
+        cy.contains("another blog created by cypress").should("not.exist");
       });
     });
   });
