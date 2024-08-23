@@ -44,7 +44,7 @@ const Blog = ({ blog, updateLikes, deleteBlog }) => {
           </div>
           <div className='blog-likes'>
             likes {blog.likes !== undefined ? blog.likes : 0}{" "}
-            <button onClick={addLikes}>likes</button>
+            <button onClick={addLikes} className='like-button'>likes</button>
           </div>
           <div>
             {blog.user && blog.user.username}

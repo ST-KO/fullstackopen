@@ -148,7 +148,9 @@ const App = () => {
 
   const blogList = () => (
     blogs.map(blog =>
-      <Blog key={blog.id} blog={blog} updateLikes={addLikes} deleteBlog={deleteBlog} />
+      <section className='blogs'>
+        <Blog key={blog.id} blog={blog} updateLikes={addLikes} deleteBlog={deleteBlog} />
+      </section>
     )
   )
 
