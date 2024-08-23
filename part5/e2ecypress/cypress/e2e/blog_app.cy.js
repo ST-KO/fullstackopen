@@ -7,6 +7,14 @@ describe("Blog app", () => {
       password: "123456",
     };
     cy.request("POST", "http://localhost:3003/api/users/", user);
+
+    const anotherUser = {
+      name: "Another User",
+      username: "anotheruser",
+      password: "password",
+    };
+    cy.request("POST", "http://localhost:3003/api/users/", anotherUser);
+
     cy.visit("http://localhost:3003/");
   });
 
@@ -33,7 +41,6 @@ describe("Blog app", () => {
       cy.get("#password").type("wrong");
       cy.get("#login-button").click();
 
-      // cy.get(".error").contains("Wrong credentials");
       cy.get(".error")
         .should("contain", "Wrong credentials")
         .and("have.css", "color", "rgb(255, 0, 0)");
@@ -93,6 +100,22 @@ describe("Blog app", () => {
         });
 
         cy.contains("another blog created by cypress").should("not.exist");
+      });
+
+      it("unauthorised user cannot delete the blog", function () {
+        cy.contains("logout").click();
+
+        cy.contains("login").click();
+        cy.get("#username").type("anotheruser");
+        cy.get("#password").type("password");
+        cy.get("#login-button").click();
+
+        cy.get(".blogs")
+          .should("contain", "another blog created by cypress")
+          .contains("view")
+          .click();
+
+        cy.get(".delete-button").should("not.exist");
       });
     });
   });

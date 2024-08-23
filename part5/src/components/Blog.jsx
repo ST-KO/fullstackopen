@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 
-const Blog = ({ blog, updateLikes, deleteBlog }) => {
+const Blog = ({ blog, updateLikes, deleteBlog, user }) => {
   const [viewDetails, setViewDetails] = useState(false);
   const blogStyle = {
     paddingTop: 10,
@@ -27,6 +27,9 @@ const Blog = ({ blog, updateLikes, deleteBlog }) => {
       deleteBlog(blog.id);
     }
   }
+
+  console.log('user', user)
+  console.log('blog', blog)
   
   return(
     <div style={blogStyle} className='blog'>
@@ -49,7 +52,10 @@ const Blog = ({ blog, updateLikes, deleteBlog }) => {
           <div>
             {blog.user && blog.user.username}
           </div>
-          <button onClick={handleDeleteBlog} className='delete-button'>delete</button>
+          {
+            user.id === blog.user.id &&
+            <button onClick={handleDeleteBlog} className='delete-button'>delete</button>
+          }
         </>
       }
     </div>
@@ -59,7 +65,8 @@ const Blog = ({ blog, updateLikes, deleteBlog }) => {
 Blog.propTypes = {
   blog: PropTypes.object.isRequired,
   updateLikes: PropTypes.func.isRequired,
-  deleteBlog: PropTypes.func.isRequired
+  deleteBlog: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired
 }
 
 export default Blog;
