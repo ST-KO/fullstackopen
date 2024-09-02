@@ -1,14 +1,12 @@
-import { useSelector, useDispatch } from 'react-redux'
-import { vote } from './reducers/anecdoteReducer'
-import NewAnecdote from './components/NewAnecdote'
-import Anecdotes from './components/Anecdotes'
+import NewAnecdote from './components/AnecdoteForm.jsx'
+import AnecdoteList from './components/AnecdoteList.jsx'
 
 const App = () => {
 
   return (
     <div>
       <h2>Anecdotes</h2>
-      <Anecdotes />
+      <AnecdoteList />
       <h2>create new</h2>
      <NewAnecdote />
     </div>
