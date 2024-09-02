@@ -5,6 +5,7 @@ import loginService from './services/login';
 import LoginForm from './components/LoginForm';
 import Notification from "./components/Notification";
 import Togglable from "./components/Togglable";
+import { Multiselect } from 'multiselect-react-dropdown';
 
 import './index.css';
 import NoteForm from "./components/NoteForm";
@@ -35,6 +36,8 @@ const App = () => {
   const [user, setUser] = useState(null);
 
   const noteFormRef = useRef();
+
+  const languageOptions = ["JavaScript", "TypeScript", "Python", "C++", "C#"]
 
   useEffect(() => {
     noteService
@@ -155,7 +158,18 @@ const App = () => {
           )
         }
       </ul>
+        <form>
+          <Multiselect
+          isObject={false}
+          options={languageOptions}
+          // selectedValues={language}
+          onRemove={(e) => console.log(e)}
+          onSelect={e => console.log(e)}
+          placeholder="Select Languages"
+          />
 
+        </form>
+      
       <Footer />
     </div>
   );
