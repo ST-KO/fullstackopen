@@ -10,7 +10,8 @@ const initialState = [
     id: 2,
   },
 ];
-const noteReducer = (state = [], action) => {
+
+const noteReducer = (state = initialState, action) => {
   switch (action.type) {
     case "NEW_NOTE":
       return [...state, action.payload];
